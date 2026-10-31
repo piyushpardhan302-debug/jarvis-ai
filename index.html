@@ -57,60 +57,98 @@ button {
 </div>
 
 <script>
+
 function startJarvis() {
   const output = document.getElementById("output");
+
   const SpeechRecognition =
     window.SpeechRecognition ||
     window.webkitSpeechRecognition;
 
   if (!SpeechRecognition) {
-    output.innerText =
-      "Please open this website in Google Chrome.";
+    output.innerText = "Please use Google Chrome.";
     return;
   }
 
   const recognition = new SpeechRecognition();
   recognition.lang = "hi-IN";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
   recognition.onresult = function(event) {
     const text = event.results[0][0].transcript;
-    output.innerText = "You said: " + text;
+    const command = text.toLowerCase().trim();
 
-    const command = text.toLowerCase();
-let reply = "माफ़ कीजिए, यह कमांड मुझे अभी नहीं आती।";
+    output.innerText = "आपने कहा: " + text;
 
-if (command.includes("hello") || command.includes("हेलो")) {
-reply = "Hello Sir! मैं JARVIS हूँ। बताइए, मैं आपकी क्या मदद करूँ?";
-}
-else if (command.includes("आपका नाम") || command.includes("your name")) {
-reply = "मेरा नाम JARVIS है।";
-}
-else if (command.includes("समय") || command.includes("time")) {
-reply = "अभी समय है " + new Date().toLocaleTimeString("hi-IN");
-}
-else if (command.includes("तारीख") || command.includes("date")) {
-reply = "आज की तारीख है " + new Date().toLocaleDateString("hi-IN");
-}
-else if (command.includes("कैसे हो") || command.includes("how are you")) {
-reply = "मैं बिल्कुल तैयार हूँ, Sir! आपका JARVIS काम कर रहा है।";
-}
-else if (command.includes("खोलो") || command.includes("open google")) {
-reply = "मैं Google खोल रहा हूँ।";
-window.open("https://www.google.com", "_blank");
-}
+    let reply = "माफ कीजिए Sir, यह कमांड अभी मुझे नहीं आती।";
 
-output.innerText = "JARVIS: " + reply;
+    if (
+      command.includes("hello") ||
+      command.includes("हेलो") ||
+      command.includes("नमस्ते") ||
+      command.includes("हाय")
+    ) {
+      reply = "Hello Sir! आपका JARVIS तैयार है।";
+    }
+    else if (
+      command.includes("नाम") ||
+      command.includes("your name")
+    ) {
+      reply = "मेरा नाम JARVIS है।";
+    }
+    else if (
+      command.includes("समय") ||
+      command.includes("टाइम") ||
+      command.includes("time")
+    ) {
+      reply = "अभी समय है " +
+        new Date().toLocaleTimeString("hi-IN");
+    }
+    else if (
+      command.includes("तारीख") ||
+      command.includes("डेट") ||
+      command.includes("date")
+    ) {
+      reply = "आज की तारीख है " +
+        new Date().toLocaleDateString("hi-IN");
+    }
+    else if (
+      command.includes("कैसे हो") ||
+      command.includes("how are you")
+    ) {
+      reply = "मैं बिल्कुल ठीक हूँ Sir! आपका JARVIS तैयार है।";
+    }
+    else if (
+      command.includes("गूगल खोलो") ||
+      command.includes("open google")
+    ) {
+      reply = "जी Sir, Google खोल रहा हूँ।";
+      window.open("https://www.google.com", "_blank");
+    }
+    else if (
+      command.includes("यूट्यूब खोलो") ||
+      command.includes("open youtube")
+    ) {
+      reply = "जी Sir, YouTube खोल रहा हूँ।";
+      window.open("https://www.youtube.com", "_blank");
+    }
 
-const speech = new SpeechSynthesisUtterance(reply);
-speech.lang = "hi-IN";
-speechSynthesis.speak(speech);
+    output.innerText = "JARVIS: " + reply;
+
+    const speech = new SpeechSynthesisUtterance(reply);
+    speech.lang = "hi-IN";
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(speech);
   };
 
-  recognition.onerror = function() {
-    output.innerText = "Please allow microphone access.";
+  recognition.onerror = function(event) {
+    output.innerText = "माइक्रोफोन की अनुमति चेक करें: " + event.error;
   };
 
   recognition.start();
 }
+  
 </script>
 </body>
 </html>
