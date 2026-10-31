@@ -1,9 +1,11 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jarvis AI</title>
+<title>JARVIS AI</title>
+
 <style>
 body {
   margin: 0;
@@ -12,9 +14,7 @@ body {
   font-family: Arial, sans-serif;
   text-align: center;
 }
-.container {
-  padding: 40px 20px;
-}
+.container { padding: 30px 18px; }
 h1 {
   color: #00d9ff;
   font-size: 38px;
@@ -24,131 +24,155 @@ h1 {
   height: 180px;
   border: 3px solid #00d9ff;
   border-radius: 50%;
-  margin: 35px auto;
+  margin: 30px auto;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 30px #00d9ff;
-  font-size: 30px;
+  font-size: 27px;
 }
 button {
   background: #00bcd4;
   border: none;
   border-radius: 25px;
-  padding: 15px 25px;
-  font-size: 17px;
+  padding: 14px 22px;
+  font-size: 16px;
   margin: 8px;
   cursor: pointer;
 }
+input {
+  width: 85%;
+  max-width: 450px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #00d9ff;
+  background: #102238;
+  color: white;
+  font-size: 16px;
+}
 #output {
-  margin: 25px auto;
+  margin: 22px auto;
   max-width: 500px;
   line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 </style>
 </head>
+
 <body>
 <div class="container">
   <h1>JARVIS AI</h1>
   <p>Your Personal AI Assistant</p>
+
   <div class="circle">J.A.R.V.I.S</div>
+
   <button onclick="startJarvis()">🎤 Talk to Jarvis</button>
-  <div id="output">Hello! I am Jarvis. How can I help you?</div>
+
+  <div>
+    <input id="question" placeholder="अपना सवाल यहाँ लिखें...">
+    <br>
+    <button onclick="askJarvis()">Send to JARVIS</button>
+  </div>
+
+  <div id="output">Hello Sir! आपका JARVIS AI तैयार है।</div>
 </div>
 
 <script>
+const WORKER_URL =
+"https://dry-darkness-2c3a.piyushpardhan302.workers.dev/";
+
+const output = document.getElementById("output");
+
+async function askAI(message) {
+  output.innerText = "JARVIS सोच रहा है...";
+
+  try {
+    const response = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: message
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "AI से जवाब नहीं मिला");
+    }
+
+    const reply = data.reply || "मुझे जवाब नहीं मिला।";
+
+    output.innerText = "आपने पूछा: " + message +
+                       "\n\nJARVIS: " + reply;
+
+    speak(reply);
+
+  } catch (error) {
+    output.innerText =
+      "JARVIS से कनेक्शन नहीं हो पाया। " + error.message;
+  }
+}
+
+function speak(text) {
+  if (!("speechSynthesis" in window)) return;
+
+  window.speechSynthesis.cancel();
+
+  const speech = new SpeechSynthesisUtterance(text);
+  speech.lang = "hi-IN";
+  speech.rate = 1;
+
+  window.speechSynthesis.speak(speech);
+}
+
+function askJarvis() {
+  const question =
+    document.getElementById("question").value.trim();
+
+  if (!question) {
+    output.innerText = "पहले अपना सवाल लिखिए Sir।";
+    return;
+  }
+
+  askAI(question);
+}
 
 function startJarvis() {
-  const output = document.getElementById("output");
-
   const SpeechRecognition =
     window.SpeechRecognition ||
     window.webkitSpeechRecognition;
 
   if (!SpeechRecognition) {
-    output.innerText = "Please use Google Chrome.";
+    output.innerText =
+      "आवाज़ पहचानने के लिए Chrome इस्तेमाल करें। आप सवाल लिख भी सकते हैं।";
     return;
   }
 
   const recognition = new SpeechRecognition();
+
   recognition.lang = "hi-IN";
   recognition.continuous = false;
   recognition.interimResults = false;
 
+  output.innerText = "JARVIS सुन रहा है...";
+
   recognition.onresult = function(event) {
     const text = event.results[0][0].transcript;
-    const command = text.toLowerCase().trim();
 
     output.innerText = "आपने कहा: " + text;
-
-    let reply = "माफ कीजिए Sir, यह कमांड अभी मुझे नहीं आती।";
-
-    if (
-      command.includes("hello") ||
-      command.includes("हेलो") ||
-      command.includes("नमस्ते") ||
-      command.includes("हाय")
-    ) {
-      reply = "Hello Sir! आपका JARVIS तैयार है।";
-    }
-    else if (
-      command.includes("नाम") ||
-      command.includes("your name")
-    ) {
-      reply = "मेरा नाम JARVIS है।";
-    }
-    else if (
-      command.includes("समय") ||
-      command.includes("टाइम") ||
-      command.includes("time")
-    ) {
-      reply = "अभी समय है " +
-        new Date().toLocaleTimeString("hi-IN");
-    }
-    else if (
-      command.includes("तारीख") ||
-      command.includes("डेट") ||
-      command.includes("date")
-    ) {
-      reply = "आज की तारीख है " +
-        new Date().toLocaleDateString("hi-IN");
-    }
-    else if (
-      command.includes("कैसे हो") ||
-      command.includes("how are you")
-    ) {
-      reply = "मैं बिल्कुल ठीक हूँ Sir! आपका JARVIS तैयार है।";
-    }
-    else if (
-      command.includes("गूगल खोलो") ||
-      command.includes("open google")
-    ) {
-      reply = "जी Sir, Google खोल रहा हूँ।";
-      window.open("https://www.google.com", "_blank");
-    }
-    else if (
-      command.includes("यूट्यूब खोलो") ||
-      command.includes("open youtube")
-    ) {
-      reply = "जी Sir, YouTube खोल रहा हूँ।";
-      window.open("https://www.youtube.com", "_blank");
-    }
-
-    output.innerText = "JARVIS: " + reply;
-
-    const speech = new SpeechSynthesisUtterance(reply);
-    speech.lang = "hi-IN";
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(speech);
+    askAI(text);
   };
 
   recognition.onerror = function(event) {
-    output.innerText = "माइक्रोफोन की अनुमति चेक करें: " + event.error;
+    output.innerText =
+      "माइक्रोफोन की अनुमति चेक करें: " + event.error;
   };
 
   recognition.start();
 }
-  
 </script>
 </body>
 </html>
