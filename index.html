@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jarvis AI</title>
+<style>
+body {
+  margin: 0;
+  background: #07111f;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+.container {
+  padding: 40px 20px;
+}
+h1 {
+  color: #00d9ff;
+  font-size: 38px;
+}
+.circle {
+  width: 180px;
+  height: 180px;
+  border: 3px solid #00d9ff;
+  border-radius: 50%;
+  margin: 35px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 30px #00d9ff;
+  font-size: 30px;
+}
+button {
+  background: #00bcd4;
+  border: none;
+  border-radius: 25px;
+  padding: 15px 25px;
+  font-size: 17px;
+  margin: 8px;
+  cursor: pointer;
+}
+#output {
+  margin: 25px auto;
+  max-width: 500px;
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>JARVIS AI</h1>
+  <p>Your Personal AI Assistant</p>
+  <div class="circle">J.A.R.V.I.S</div>
+  <button onclick="startJarvis()">🎤 Talk to Jarvis</button>
+  <div id="output">Hello! I am Jarvis. How can I help you?</div>
+</div>
+
+<script>
+function startJarvis() {
+  const output = document.getElementById("output");
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    output.innerText =
+      "Please open this website in Google Chrome.";
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "hi-IN";
+  recognition.onresult = function(event) {
+    const text = event.results[0][0].transcript;
+    output.innerText = "You said: " + text;
+
+    const speech = new SpeechSynthesisUtterance(
+      "आपने कहा " + text
+    );
+    speech.lang = "hi-IN";
+    speechSynthesis.speak(speech);
+  };
+
+  recognition.onerror = function() {
+    output.innerText = "Please allow microphone access.";
+  };
+
+  recognition.start();
+}
+</script>
+</body>
+</html>
